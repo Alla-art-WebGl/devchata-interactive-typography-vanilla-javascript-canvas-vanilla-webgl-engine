@@ -1,7 +1,9 @@
-# 🎥 PROJECT: DEVCHATA (ДЕВЧАТА)
-### *Custom Interactive Art Engine (Raw WebGL / GPU Kinetic Physics)*
+# 🎥 ПРОЕКТ: ДЕВЧАТА
+### *Кастомный Интерактивный Арт-Движок (Raw `WebGL` / GPU Кинетическая Физика)*
 
-> **Interactive title of the movie "Devchata" (1961, directed by Yuri Chulyukin) built on a custom engine using raw WebGL, GLSL and Vanilla JS with GPU kinetic physics.**
+> **Интерактивное название культового фильма «Девчата» (1961, режиссёр Юрий Чулюкин). Проект разработан на полностью самописном (кастомном) веб-движке с использованием чистого `WebGL`, графического кода шейдеров `GLSL`, нативного `JavaScript` и `Canvas` с упругой кинетической физикой на чипе видеокарты (GPU).**
+
+
 
 ---
 
