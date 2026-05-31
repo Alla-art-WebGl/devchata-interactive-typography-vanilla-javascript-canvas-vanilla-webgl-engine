@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Мета-теги для правильного отображения на всех устройствах -->
+    <meta charset="UTF-8">
+    <!-- viewport-fit=cover растягивает Бездну даже под "челку" iPhone -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ДЕВЧАТА — Золотой Песок</title>
+
+    <!-- СНАЙПЕРСКАЯ ЗАГЛУШКА ДЛЯ УНИЧТОЖЕНИЯ ОШИБКИ ФАВИКОНА -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">
+
+    
+    <style>
+        /* СТИЛИ БЕЗДНЫ */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Запрещаем прокрутку, чтобы песок не "дергался" */
+            background-color: #00050a; /* Наш фирменный матовый черный */
+        }
+        
+        /* Холст на весь экран */
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+    
+        }
+
+        /* Твой изящный крестик (16px) */
+        #exit-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            z-index: 100; /* Всегда поверх золота */
+            opacity: 0.5;
+            transition: opacity 0.3s;
+          
+        }
+        #exit-btn:hover { opacity: 1; }
+        #exit-btn:before, #exit-btn:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 16px;
+            height: 1px;
+            background-color: white;
+        }
+        #exit-btn:before { transform: rotate(45deg); }
+        #exit-btn:after { transform: rotate(-45deg); }
+
+        
+       /* --- АППАРАТНАЯ МАТОВАЯ ПОДСКАЗКА СЕНЬОРА (БЕЗ ЛАГОВ И ПАДЕНИЯ FPS) --- */
+        #landscape-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #00050a; /* Матовая черная Бездна кадра */
+            color: #ffffff;
+            display: none; /* Для ноутбука ПК всегда скрыта */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-family: sans-serif;
+            font-size: 16px;
+            letter-spacing: 1px;
+            line-height: 1.5;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 150; /* Поднимаем НАД холстом и НАД крестиком на время блока ориентации! */
+        }
+
+        /* Аппаратный замок смартфона: если ширина экрана меньше 1025px И устройство стоит вертикально,
+           видеокарта телефона НАНОСЕКУНДНО зажигает черную вуаль, полностью пряча старые сплющенные буквы! */
+        @media (max-width: 1024px) and (orientation: portrait) {
+            #landscape-overlay {
+                display: flex !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА -->
+    <div id="exit-btn"></div>
+
+    <!-- Твоя изящная подсказка автоповорота экрана -->
+    <div id="landscape-overlay">
+        Пожалуйста, включите на устройстве функцию автоповорот<br>и поверните устройство горизонтально 🔄
+    </div>
+
+
+ <!-- Главная сцена WebGL -->
+    <canvas id="canvas"></canvas>
+
+    <!-- --- АВТОМАТИЧЕСКИЙ АППАРАТНЫЙ ПИНОК АВТОПОВОРОТА (ВСТАВКА СЕНЬОРА) --- -->
+    <!-- Скрипт ловит смену ориентации экрана смартфона, ждет раскрытия окна и перезапускает -->
+    <!-- страницу. Завод оцифровки букв родится на широком окне, и буквы выпрямятся сами! -->
+    <script>
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                
+                // Если телефон перевернули горизонтально набок:
+                if (w > h && w < 1025) {
+                    // Имитируем Hot Reload! Насильно обновляем страницу на широком экране.
+                    window.location.reload();
+                }
+            }, 200); // 200 мс задержки, чтобы мобильный браузер успел развернуть пиксели
+        });
+    </script>
+
+</body>
+</html>
+
+
+    
+    
+<script src="js/Logger.js"></script>
+
+<script src="js/Identity.js"></script>
+
+<script src="js/TypeCheck.js"></script>
+    
+<script src="js/Constants.js"></script>
+
+<script src="js/State.js"></script>
+
+<script src="js/DeviceCapabilities.js"></script>
+
+<script src="js/Resolution.js"></script>
+
+<!-- Главная сцена WebGL -->
+    <canvas id="canvas"></canvas>
+
+    <!-- --- ЖИВОЙ СЕНЬОР-РАДАР: ЧИСТЫЙ FULLSCREEN И АППАРАТНЫЙ ПИНОК БЕЗ ПАДЕНИЯ FPS --- -->
+    <script>
+        const overlay = document.getElementById('landscape-overlay');
+
+        // --- ФУНКЦИЯ 1: КОНТРОЛЛЕР СБРОСА FULLSCREEN ПРИ ВЕРТИКАЛИ ---
+        function checkOrientation() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+
+            if (w < 1025 && w < h) {
+                // Если телефон вернули вертикально — мгновенно гасим Fullscreen,
+                // чтобы шёлково вернулась поисковая строка и крестик встал на свои 20px!
+                const doc = document;
+                const isFull = doc.fullscreenElement || doc.mozFullScreenElement || 
+                               doc.webkitFullscreenElement || doc.msFullscreenElement;
+                
+                if (isFull) {
+                    const exitFS = doc.exitFullscreen || doc.mozCancelFullScreen || 
+                                   doc.webkitExitFullscreen || doc.msExitFullscreen;
+                    if (exitFS) exitFS.call(doc).catch(() => {});
+                }
+            }
+        }
+
+        // --- ФУНКЦИЯ 2: ПОЛНОЭКРАННЫЙ РУБИЛЬНИК ПО ТАПУ (СТРОГО БОКОМ!) ---
+        const autoFullscreen = (e) => {
+            if (!e) return;
+            
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            
+            // Жесткий блок: запрещаем взлёт Fullscreen, если телефон стоит вертикально
+            if (w < h && w < 1025) return;
+
+            let clientX = 0; 
+            let clientY = 0;
+            
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX; 
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX; 
+                clientY = e.clientY;
+            }
+
+            const screenWidth = window.innerWidth;
+            // Координатный перехват крестика exit-btn (зона 70px)
+            const isClickInExitZone = (clientX > (screenWidth - 70) && clientY < 70);
+
+            if (isClickInExitZone) {
+                if (e.stopPropagation) e.stopPropagation(); 
+                if (e.preventDefault) e.preventDefault();
+                
+                const doc = document;
+                const isFull = doc.fullscreenElement || doc.mozFullScreenElement || 
+                               doc.webkitFullscreenElement || doc.msFullscreenElement;
+                
+                if (isFull) {
+                    const exitFS = doc.exitFullscreen || doc.mozCancelFullScreen || 
+                                   doc.webkitExitFullscreen || doc.msExitFullscreen;
+                    if (exitFS) exitFS.call(doc).catch(() => {});
+                }
+                return; 
+            }
+
+            // Раскрываем холст во весь экран шёлково с первого тапа по золоту боком!
+            const docEl = document.documentElement;
+            const isCurrentlyFull = document.fullscreenElement || document.mozFullScreenElement || 
+                                    document.webkitFullscreenElement || document.msFullscreenElement;
+
+            if (!isCurrentlyFull) {
+                const requestFS = docEl.requestFullscreen || docEl.mozRequestFullScreen || 
+                                  document.webkitRequestFullscreen || docEl.msRequestFullscreen;
+                if (requestFS) { requestFS.call(docEl).catch(() => {}); }
+            }
+        };
+
+        // Навешиваем детекторы кликов и тачей на всю Бездну экрана
+        window.addEventListener('mousedown', autoFullscreen);
+        window.addEventListener('touchstart', autoFullscreen, { passive: false });
+        window.addEventListener('resize', checkOrientation);
+        
+        // Переворот гироскопа: страница мгновенно прячется за аппаратной CSS-маской portrait,
+        // а скрипт спокойно, в полной темноте, выпрямляет буфер БЕЗ ПЕРЕЗАГРУЗКИ И ДЕРГАНИЯ СЕТИ!
+        window.addEventListener('orientationchange', () => { 
+            setTimeout(() => {
+                if (window.Resolution && window.Resolution.update) window.Resolution.update();
+                if (window.Viewport && window.Viewport.calculate) window.Viewport.calculate();
+                checkOrientation();
+            }, 150); // 150 мс — идеальное время разворота матрицы чипом GPU
+        });
+        
+        // Первый холодный запуск проверки при загрузке страницы кадра
+        checkOrientation();
+    </script>
+
+
+
+<script src="js/Viewport.js"></script>
+
+<script src="js/Math.js"></script>
+
+<script src="js/CoordinateSpace.js"></script>
+
+<script src="js/FpsTracker.js"></script>
+
+
+
+
+<script src="js/Config.js"></script>
+
+<script src="js/Schema.js"></script>
+
+<script src="js/Registry.js"></script>
+
+<script src="js/AssetLoader.js"></script>
+
+
+
+
+
+<script src="js/Kernel.js"></script>
+
+<script src="js/Grid.js"></script>
+
+<script src="js/ShadersSource.js"></script>
+
+<script src="js/CacheBuster.js"></script>
+
+<script src="js/Program.js"></script>
+
+<script src="js/Attributes.js"></script>
+
+<script src="js/Uniforms.js"></script>
+
+<script src="js/Interaction.js"></script>
+
+<script src="js/Engine.js"></script>
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
