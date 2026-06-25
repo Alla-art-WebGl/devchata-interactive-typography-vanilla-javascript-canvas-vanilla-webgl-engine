@@ -21,7 +21,7 @@
 
 * **Core Platform:** Чистый JavaScript (Vanilla API) & WebGL 1.0 (Low-Level Graphic API).
 * **GPU Shading Language:** GLSL (High-Speed Shading).
-* **Performance Benchmark:** Стабильные **60 FPS** на мобильных процессорах и ультрабуках при покадровом параллельном расчёте 33 000 объектов силами видеокарты.
+* **Performance Benchmark:** Стабильные **60 FPS** на мобильных процессорах и ультрабуках при покадровом параллельном расчёте 30 000 объектов силами видеокарты.
 * **Memory Architecture:** Кастомный паспорт песчинки (`Schema.js`) с интерливингом данных (`stride: 6`) для максимальной кэш-локализации GPU.
 * **GPU Vertex Pipeline:** Полный вынос тригонометрии, векторов отскока и градиента упругости `smoothstep` на чип видеокарты (**Vertex Shader**).
 * **GPU Fragment Pipeline:** Аппаратное попиксельное отсечение лучей отрисовки (`discard`) на уровне фрагментного шейдера (**Fragment Shader**) для создания эффекта воздушных зазоров.
